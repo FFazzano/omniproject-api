@@ -1,0 +1,43 @@
+POST http://localhost:8080/workspaces
+Content-Type: application/json
+
+{
+  "nome": "Meu Primeiro Workspace",
+  "descricao": "Testando a API direto do IntelliJ"
+}
+
+### Criar uma nova Tarefa
+POST http://localhost:8080/tasks
+Content-Type: application/json
+
+{
+  "titulo": "Módulo de Login",
+  "descricao": "Criar a tela de login para os usuários acessarem o sistema",
+  "workspace": {
+    "id": 1
+  }
+}
+
+### Criar uma nova Tarefa
+POST http://localhost:8080/tasks
+Content-Type: application/json
+
+{
+  "titulo": "Módulo de Login",
+  "descricao": "Criar a tela de login para os usuários acessarem o sistema",
+  "workspace": {
+    "id": 1
+  }
+}
+
+### Adicionar um comentário (Chat da Tarefa)
+POST http://localhost:8080/comments
+Content-Type: application/json
+
+{
+  "autor": "Felipe (Gerente de Projetos)",
+  "texto": "Pessoal, o prazo final desta tarefa é sexta-feira. Algum impedimento?",
+  "task": {
+    "id": 1
+  }
+}
