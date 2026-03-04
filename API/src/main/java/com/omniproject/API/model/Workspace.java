@@ -1,5 +1,6 @@
 package com.omniproject.API.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore; // <-- Nova importação aqui
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -11,11 +12,18 @@ public class Workspace {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 150)
     private String nome;
 
-    @Column(length = 255)
+    @Column(columnDefinition = "TEXT")
     private String descricao;
+
+    // --- A NOVA PARTE ESTÁ AQUI ---
+    // Dizemos ao banco que Vários Workspaces podem pertencer a Um Usuário
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore // Evita que a senha do usuário vaze no JSON quando buscarmos o Workspace
+    private User user;
 
     @Column(name = "criado_em", updatable = false)
     private LocalDateTime criadoEm;
@@ -24,7 +32,6 @@ public class Workspace {
     public Workspace() {
     }
 
-    // --- ANTES DE SALVAR NO BANCO ---
     @PrePersist
     protected void onCreate() {
         this.criadoEm = LocalDateTime.now();
@@ -61,5 +68,14 @@ public class Workspace {
 
     public void setCriadoEm(LocalDateTime criadoEm) {
         this.criadoEm = criadoEm;
+    }
+
+    // --- GETTER E SETTER DO USUÁRIO (DONO) ---
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }
