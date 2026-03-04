@@ -2,7 +2,9 @@ package com.omniproject.API.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List; // <-- Importação necessária para a Lista
+import java.util.List;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "tasks")
@@ -11,6 +13,9 @@ public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotBlank(message = "O título da tarefa é obrigatório e não pode estar em branco")
+    @Size(min = 3, max = 150, message = "O título deve ter entre 3 e 150 caracteres")
 
     @Column(nullable = false, length = 150)
     private String titulo;
@@ -25,7 +30,7 @@ public class Task {
     @JoinColumn(name = "workspace_id", nullable = false)
     private Workspace workspace;
 
-    // --- A NOVA LISTA DE COMENTÁRIOS ESTÁ AQUI ---
+    // --- LISTA DE COMENTÁRIOS ---
     @OneToMany(mappedBy = "task")
     private List<Comment> comentarios;
 

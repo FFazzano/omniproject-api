@@ -16,7 +16,7 @@ public class Comment {
     private String texto;
 
     @Column(nullable = false, length = 100)
-    private String autor; // Para sabermos quem enviou (ex: "Gerente", "Dev Sênior")
+    private String autor;
 
     // --- RELACIONAMENTO: Vários comentários pertencem a UMA Tarefa ---
     @ManyToOne
