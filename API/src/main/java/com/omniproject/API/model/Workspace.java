@@ -3,6 +3,7 @@ package com.omniproject.API.model;
 import com.fasterxml.jackson.annotation.JsonIgnore; // <-- Nova importação aqui
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "workspaces")
@@ -24,6 +25,11 @@ public class Workspace {
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore // Evita que a senha do usuário vaze no JSON quando buscarmos o Workspace
     private User user;
+
+    @OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Task> tasks;
+
+
 
     @Column(name = "criado_em", updatable = false)
     private LocalDateTime criadoEm;
