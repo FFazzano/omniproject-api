@@ -30,6 +30,8 @@ public class Task {
     @JoinColumn(name = "workspace_id", nullable = false)
     private Workspace workspace;
 
+    private boolean concluida;
+
     // --- LISTA DE COMENTÁRIOS ---
     @OneToMany(mappedBy = "task")
     private List<Comment> comentarios;
@@ -102,5 +104,13 @@ public class Task {
 
     public void setCriadoEm(LocalDateTime criadoEm) {
         this.criadoEm = criadoEm;
+    }
+
+    public boolean isConcluida() {
+        return concluida;
+    }
+
+    public void setConcluida(boolean concluida) {
+        this.concluida = concluida;
     }
 }

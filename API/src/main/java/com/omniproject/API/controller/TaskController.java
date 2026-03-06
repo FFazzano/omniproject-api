@@ -58,4 +58,44 @@ public class TaskController {
         List<Task> tasks = taskRepository.findByWorkspaceId(workspaceId);
         return ResponseEntity.ok(tasks);
     }
+    // --- ROTA DE ATUALIZAR (CONCLUIR/EDITAR) ---
+    @PutMapping("/{id}")
+    public ResponseEntity<?> atualizarTask(@PathVariable Long id, @RequestBody Task taskAtualizada, Authentication authentication) {
+        User usuarioLogado = (User) authentication.getPrincipal();
+        Task task = taskRepository.findById(id).orElse(null);
+
+        if (task == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tarefa não encontrada.");
+        }
+
+        // O Leão de Chácara: Verifica se o Workspace da tarefa pertence ao usuário logado
+        if (!task.getWorkspace().getUser().getId().equals(usuarioLogado.getId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Erro: Você não tem permissão para alterar esta tarefa.");
+        }
+
+        // Atualiza os dados
+        task.setTitulo(taskAtualizada.getTitulo());
+        task.setConcluida(taskAtualizada.isConcluida());
+
+        return ResponseEntity.ok(taskRepository.save(task));
+    }
+
+    // --- ROTA DE DELETAR ---
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deletarTask(@PathVariable Long id, Authentication authentication) {
+        User usuarioLogado = (User) authentication.getPrincipal();
+        Task task = taskRepository.findById(id).orElse(null);
+
+        if (task == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tarefa não encontrada.");
+        }
+
+        // O Leão de Chácara ataca novamente!
+        if (!task.getWorkspace().getUser().getId().equals(usuarioLogado.getId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Erro: Você não tem permissão para deletar esta tarefa.");
+        }
+
+        taskRepository.delete(task);
+        return ResponseEntity.ok("Tarefa deletada com sucesso!");
+    }
 }
