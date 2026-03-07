@@ -3,7 +3,10 @@ package com.omniproject.API.controller;
 import com.omniproject.API.config.TokenService;
 import com.omniproject.API.model.User;
 import com.omniproject.API.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,37 +18,35 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "*")
 public class AuthController {
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    // 1. Injeção por Construtor (Padrão Sênior)
+    private final AuthenticationManager authenticationManager;
+    private final UserRepository repository;
+    private final TokenService tokenService;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private UserRepository repository;
-
-    @Autowired
-    private TokenService tokenService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    public AuthController(AuthenticationManager authenticationManager, UserRepository repository, TokenService tokenService, PasswordEncoder passwordEncoder) {
+        this.authenticationManager = authenticationManager;
+        this.repository = repository;
+        this.tokenService = tokenService;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody LoginDTO data) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginDTO data) {
         var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.senha());
         var auth = this.authenticationManager.authenticate(usernamePassword);
 
-        // Se a senha estiver certa, gera a "Pulseira VIP"
         var token = tokenService.gerarToken((User) auth.getPrincipal());
 
         return ResponseEntity.ok(new TokenDTO(token));
     }
 
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody RegisterDTO data) {
-        // Verifica se o e-mail já existe no banco
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterDTO data) {
         if (this.repository.findByEmail(data.email()).isPresent()) {
             return ResponseEntity.badRequest().body("E-mail já cadastrado!");
         }
 
-        // Criptografa a senha antes de salvar (NUNCA salvar senha em texto puro!)
         String encryptedPassword = passwordEncoder.encode(data.senha());
 
         User newUser = new User();
@@ -58,9 +59,31 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
-    // --- DTOs (Data Transfer Objects) ---
-    // Usamos 'record' do Java para criar pacotes de dados leves e seguros
-    public record LoginDTO(String email, String senha) {}
-    public record RegisterDTO(String nome, String email, String senha) {}
+    // ==========================================
+    // DTOs (Data Transfer Objects) COM BLINDAGEM
+    // ==========================================
+
+    public record LoginDTO(
+            @NotBlank(message = "O e-mail é obrigatório.")
+            @Email(message = "Formato de e-mail inválido.")
+            String email,
+
+            @NotBlank(message = "A senha é obrigatória.")
+            String senha
+    ) {}
+
+    public record RegisterDTO(
+            @NotBlank(message = "O nome é obrigatório.")
+            String nome,
+
+            @NotBlank(message = "O e-mail é obrigatório.")
+            @Email(message = "Formato de e-mail inválido.")
+            String email,
+
+            @NotBlank(message = "A senha é obrigatória.")
+            @Size(min = 6, message = "A senha deve ter no mínimo 6 caracteres.")
+            String senha
+    ) {}
+
     public record TokenDTO(String token) {}
 }

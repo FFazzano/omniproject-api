@@ -1,10 +1,10 @@
 package com.omniproject.API.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
-import java.util.List;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "tasks")
@@ -14,32 +14,33 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "O título da tarefa é obrigatório e não pode estar em branco")
-    @Size(min = 3, max = 150, message = "O título deve ter entre 3 e 150 caracteres")
-
+    // 1. Anotações empilhadas e juntas (Padrão Sênior)
+    @NotBlank(message = "O título da tarefa é obrigatório.")
+    @Size(min = 3, max = 150, message = "O título deve ter entre 3 e 150 caracteres.")
     @Column(nullable = false, length = 150)
     private String titulo;
 
+    // 2. Limite de segurança para textos grandes
+    @Size(max = 2000, message = "A descrição não pode passar de 2000 caracteres.")
     @Column(columnDefinition = "TEXT")
     private String descricao;
 
+    @Size(max = 50)
     @Column(length = 50)
     private String status = "PENDENTE";
+
+    private boolean concluida;
 
     @ManyToOne
     @JoinColumn(name = "workspace_id", nullable = false)
     private Workspace workspace;
 
-    private boolean concluida;
-
-    // --- LISTA DE COMENTÁRIOS ---
-    @OneToMany(mappedBy = "task")
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comentarios;
 
     @Column(name = "criado_em", updatable = false)
     private LocalDateTime criadoEm;
 
-    // --- CONSTRUTORES ---
     public Task() {
     }
 
@@ -48,7 +49,10 @@ public class Task {
         this.criadoEm = LocalDateTime.now();
     }
 
-    // --- GETTERS E SETTERS ---
+    // ==========================================
+    // GETTERS E SETTERS
+    // ==========================================
+
     public Long getId() {
         return id;
     }
@@ -81,6 +85,14 @@ public class Task {
         this.status = status;
     }
 
+    public boolean isConcluida() {
+        return concluida;
+    }
+
+    public void setConcluida(boolean concluida) {
+        this.concluida = concluida;
+    }
+
     public Workspace getWorkspace() {
         return workspace;
     }
@@ -89,7 +101,6 @@ public class Task {
         this.workspace = workspace;
     }
 
-    // --- GETTER E SETTER DA LISTA DE COMENTÁRIOS ---
     public List<Comment> getComentarios() {
         return comentarios;
     }
@@ -104,13 +115,5 @@ public class Task {
 
     public void setCriadoEm(LocalDateTime criadoEm) {
         this.criadoEm = criadoEm;
-    }
-
-    public boolean isConcluida() {
-        return concluida;
-    }
-
-    public void setConcluida(boolean concluida) {
-        this.concluida = concluida;
     }
 }

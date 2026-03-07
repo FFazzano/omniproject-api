@@ -6,7 +6,6 @@ import com.omniproject.API.model.Workspace;
 import com.omniproject.API.repository.TaskRepository;
 import com.omniproject.API.repository.WorkspaceRepository;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -19,48 +18,44 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class TaskController {
 
-    @Autowired
-    private TaskRepository taskRepository;
+    // 1. Injeção por Construtor Segura e Imutável
+    private final TaskRepository taskRepository;
+    private final WorkspaceRepository workspaceRepository;
 
-    @Autowired
-    private WorkspaceRepository workspaceRepository; // Precisamos dele para validar o dono
+    public TaskController(TaskRepository taskRepository, WorkspaceRepository workspaceRepository) {
+        this.taskRepository = taskRepository;
+        this.workspaceRepository = workspaceRepository;
+    }
 
     @PostMapping
     public ResponseEntity<?> criarTask(@Valid @RequestBody Task task, Authentication authentication) {
         User usuarioLogado = (User) authentication.getPrincipal();
-
-        // 1. Busca o workspace que o usuário informou no JSON
         Workspace workspace = workspaceRepository.findById(task.getWorkspace().getId()).orElse(null);
 
-        // 2. Regra de Negócio: O workspace existe? O usuário logado é realmente o dono dele?
         if (workspace == null || !workspace.getUser().getId().equals(usuarioLogado.getId())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Erro: Workspace não encontrado ou você não tem permissão.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Erro: Workspace não encontrado ou permissão negada.");
         }
 
-        // 3. Tudo certo! Amarramos a tarefa ao workspace e salvamos
         task.setWorkspace(workspace);
         return ResponseEntity.status(HttpStatus.CREATED).body(taskRepository.save(task));
     }
 
-    // Criamos uma rota específica para listar tarefas apenas de UM projeto
     @GetMapping("/workspace/{workspaceId}")
     public ResponseEntity<?> listarTasksDoWorkspace(@PathVariable Long workspaceId, Authentication authentication) {
         User usuarioLogado = (User) authentication.getPrincipal();
         Workspace workspace = workspaceRepository.findById(workspaceId).orElse(null);
 
-        // A mesma checagem de segurança na hora de visualizar!
         if (workspace == null || !workspace.getUser().getId().equals(usuarioLogado.getId())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Erro: Acesso negado a este projeto.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Erro: Acesso negado a este projeto.");
         }
 
         List<Task> tasks = taskRepository.findByWorkspaceId(workspaceId);
         return ResponseEntity.ok(tasks);
     }
-    // --- ROTA DE ATUALIZAR (CONCLUIR/EDITAR) ---
+
+    // 2. Blindagem adicionada aqui (@Valid)
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizarTask(@PathVariable Long id, @RequestBody Task taskAtualizada, Authentication authentication) {
+    public ResponseEntity<?> atualizarTask(@PathVariable Long id, @Valid @RequestBody Task taskAtualizada, Authentication authentication) {
         User usuarioLogado = (User) authentication.getPrincipal();
         Task task = taskRepository.findById(id).orElse(null);
 
@@ -68,19 +63,16 @@ public class TaskController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tarefa não encontrada.");
         }
 
-        // O Leão de Chácara: Verifica se o Workspace da tarefa pertence ao usuário logado
         if (!task.getWorkspace().getUser().getId().equals(usuarioLogado.getId())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Erro: Você não tem permissão para alterar esta tarefa.");
         }
 
-        // Atualiza os dados
         task.setTitulo(taskAtualizada.getTitulo());
         task.setConcluida(taskAtualizada.isConcluida());
 
         return ResponseEntity.ok(taskRepository.save(task));
     }
 
-    // --- ROTA DE DELETAR ---
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletarTask(@PathVariable Long id, Authentication authentication) {
         User usuarioLogado = (User) authentication.getPrincipal();
@@ -90,7 +82,6 @@ public class TaskController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tarefa não encontrada.");
         }
 
-        // O Leão de Chácara ataca novamente!
         if (!task.getWorkspace().getUser().getId().equals(usuarioLogado.getId())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Erro: Você não tem permissão para deletar esta tarefa.");
         }

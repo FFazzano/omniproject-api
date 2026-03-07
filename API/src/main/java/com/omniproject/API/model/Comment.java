@@ -1,8 +1,10 @@
 package com.omniproject.API.model;
 
-import jakarta.persistence.*;
-import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "comments")
@@ -12,13 +14,17 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // 1. Blindagem do Texto: Não deixa salvar comentário em branco
+    @NotBlank(message = "O texto do comentário não pode estar vazio.")
     @Column(nullable = false, columnDefinition = "TEXT")
     private String texto;
 
+    // 2. Blindagem do Autor: Limita os caracteres e barra strings vazias
+    @NotBlank(message = "O nome do autor é obrigatório.")
+    @Size(max = 100, message = "O nome do autor não pode passar de 100 caracteres.")
     @Column(nullable = false, length = 100)
     private String autor;
 
-    // --- RELACIONAMENTO: Vários comentários pertencem a UMA Tarefa ---
     @ManyToOne
     @JoinColumn(name = "task_id", nullable = false)
     @JsonIgnore
@@ -27,7 +33,6 @@ public class Comment {
     @Column(name = "criado_em", updatable = false)
     private LocalDateTime criadoEm;
 
-    // --- CONSTRUTORES ---
     public Comment() {
     }
 
@@ -36,7 +41,10 @@ public class Comment {
         this.criadoEm = LocalDateTime.now();
     }
 
-    // --- GETTERS E SETTERS ---
+    // ==========================================
+    // GETTERS E SETTERS
+    // ==========================================
+
     public Long getId() {
         return id;
     }

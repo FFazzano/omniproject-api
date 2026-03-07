@@ -3,10 +3,10 @@ package com.omniproject.API.controller;
 import com.omniproject.API.model.User;
 import com.omniproject.API.model.Workspace;
 import com.omniproject.API.repository.WorkspaceRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication; // <-- Importação do Security
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,25 +16,24 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class WorkspaceController {
 
-    @Autowired
-    private WorkspaceRepository workspaceRepository;
+    // 1. Injeção por Construtor (Classe Imutável e Rápida)
+    private final WorkspaceRepository workspaceRepository;
 
-    // --- ROTA DE CRIAR PROJETO ---
+    public WorkspaceController(WorkspaceRepository workspaceRepository) {
+        this.workspaceRepository = workspaceRepository;
+    }
+
     @PostMapping
-    public ResponseEntity<?> criarWorkspace(@RequestBody Workspace workspace, Authentication authentication) {
-        // 1. Descobre quem é o dono da Pulseira VIP
+    public ResponseEntity<?> criarWorkspace(@Valid @RequestBody Workspace workspace, Authentication authentication) {
         User usuarioLogado = (User) authentication.getPrincipal();
-
-        // 2. CARIMBO DE SEGURANÇA: Avisa que este projeto pertence a este usuário!
         workspace.setUser(usuarioLogado);
 
-        // 3. Salva no banco de dados
         return ResponseEntity.status(HttpStatus.CREATED).body(workspaceRepository.save(workspace));
     }
 
-    // --- ROTA DE ATUALIZAR (EDITAR) ---
+    // 2. Blindagem adicionada no Editar (@Valid)
     @PutMapping("/{id}")
-    public ResponseEntity<?> editarWorkspace(@PathVariable Long id, @RequestBody Workspace workspaceAtualizado, Authentication authentication) {
+    public ResponseEntity<?> editarWorkspace(@PathVariable Long id, @Valid @RequestBody Workspace workspaceAtualizado, Authentication authentication) {
         User usuarioLogado = (User) authentication.getPrincipal();
         Workspace workspace = workspaceRepository.findById(id).orElse(null);
 
@@ -42,10 +41,8 @@ public class WorkspaceController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Projeto não encontrado.");
         }
 
-        // Verifica se o projeto TEM dono, e se o dono NÃO é o usuário logado
         if (workspace.getUser() != null && !workspace.getUser().getId().equals(usuarioLogado.getId())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Erro: Você não tem permissão para editar este projeto.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Erro: Você não tem permissão para editar este projeto.");
         }
 
         workspace.setNome(workspaceAtualizado.getNome());
@@ -54,7 +51,6 @@ public class WorkspaceController {
         return ResponseEntity.ok(workspaceRepository.save(workspace));
     }
 
-    // --- ROTA DE DELETAR ---
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletarWorkspace(@PathVariable Long id, Authentication authentication) {
         User usuarioLogado = (User) authentication.getPrincipal();
@@ -64,21 +60,18 @@ public class WorkspaceController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Projeto não encontrado.");
         }
 
-        // A MÁGICA AQUI: Se for fantasma (getUser() == null), ele pula esse IF e deixa deletar!
         if (workspace.getUser() != null && !workspace.getUser().getId().equals(usuarioLogado.getId())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Erro: Você não tem permissão para deletar este projeto.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Erro: Você não tem permissão para deletar este projeto.");
         }
 
         workspaceRepository.delete(workspace);
-
         return ResponseEntity.ok("Projeto deletado com sucesso!");
     }
 
+    // 3. Retorno padronizado com ResponseEntity
     @GetMapping
-    public List<Workspace> listarWorkspaces(Authentication authentication) {
-        // Pega o usuário logado e busca no banco SÓ os projetos dele!
+    public ResponseEntity<List<Workspace>> listarWorkspaces(Authentication authentication) {
         User usuarioLogado = (User) authentication.getPrincipal();
-        return workspaceRepository.findByUser(usuarioLogado);
+        return ResponseEntity.ok(workspaceRepository.findByUser(usuarioLogado));
     }
 }
