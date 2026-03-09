@@ -29,14 +29,13 @@ public class Task {
     @Column(length = 50)
     private String status = "PENDENTE";
 
-    private boolean concluida;
-
     @ManyToOne
     @JoinColumn(name = "workspace_id", nullable = false)
     private Workspace workspace;
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comentarios;
+
 
     @Column(name = "criado_em", updatable = false)
     private LocalDateTime criadoEm;
@@ -83,14 +82,6 @@ public class Task {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public boolean isConcluida() {
-        return concluida;
-    }
-
-    public void setConcluida(boolean concluida) {
-        this.concluida = concluida;
     }
 
     public Workspace getWorkspace() {

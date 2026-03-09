@@ -30,4 +30,13 @@ public class GlobalExceptionHandler {
 
         return errors;
     }
+    // NOVO: Captura qualquer outro erro inesperado do sistema (Erro 500)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(Exception.class)
+    public Map<String, String> handleGenericExceptions(Exception ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("erro", "Ocorreu um erro interno no servidor.");
+        error.put("detalhe", ex.getMessage()); // Mostra o motivo técnico real
+        return error;
+    }
 }

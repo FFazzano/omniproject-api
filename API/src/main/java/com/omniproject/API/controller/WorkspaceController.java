@@ -51,6 +51,27 @@ public class WorkspaceController {
         return ResponseEntity.ok(workspaceRepository.save(workspace));
     }
 
+    // NOVO: Rota específica para Concluir / Reabrir o projeto
+    @PutMapping("/{id}/concluir")
+    public ResponseEntity<?> alternarStatusWorkspace(@PathVariable Long id, Authentication authentication) {
+        User usuarioLogado = (User) authentication.getPrincipal();
+        Workspace workspace = workspaceRepository.findById(id).orElse(null);
+
+        if (workspace == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Projeto não encontrado.");
+        }
+
+        // Blindagem de segurança: Só o dono do projeto pode alterar o status!
+        if (workspace.getUser() != null && !workspace.getUser().getId().equals(usuarioLogado.getId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Erro: Você não tem permissão para concluir este projeto.");
+        }
+
+        // A mágica acontece aqui: inverte o status atual (false vira true, e vice-versa)
+        workspace.setConcluido(!workspace.isConcluido());
+
+        return ResponseEntity.ok(workspaceRepository.save(workspace));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletarWorkspace(@PathVariable Long id, Authentication authentication) {
         User usuarioLogado = (User) authentication.getPrincipal();

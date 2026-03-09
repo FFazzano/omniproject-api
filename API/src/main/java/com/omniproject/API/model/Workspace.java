@@ -6,6 +6,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.time.LocalDate;
+import jakarta.persistence.Column;
+import jakarta.persistence.PrePersist;
 
 @Entity
 @Table(name = "workspaces")
@@ -36,12 +39,21 @@ public class Workspace {
     @Column(name = "criado_em", updatable = false)
     private LocalDateTime criadoEm;
 
+    @Column(name = "data_criacao", updatable = false)
+    private LocalDateTime dataCriacao;
+
+    @Column(name = "data_entrega")
+    private LocalDate dataEntrega;
+
+    @Column(name = "concluido", columnDefinition = "boolean default false")
+    private boolean concluido = false; // Por padrão, todo projeto nasce "Aberto"
+
     public Workspace() {
     }
 
     @PrePersist
     protected void onCreate() {
-        this.criadoEm = LocalDateTime.now();
+        this.dataCriacao = LocalDateTime.now();
     }
 
     // ==========================================
@@ -66,4 +78,28 @@ public class Workspace {
 
     public LocalDateTime getCriadoEm() { return criadoEm; }
     public void setCriadoEm(LocalDateTime criadoEm) { this.criadoEm = criadoEm; }
+
+    public LocalDateTime getDataCriacao() {
+        return dataCriacao;
+    }
+
+    public void setDataCriacao(LocalDateTime dataCriacao) {
+        this.dataCriacao = dataCriacao;
+    }
+
+    public LocalDate getDataEntrega() {
+        return dataEntrega;
+    }
+
+    public void setDataEntrega(LocalDate dataEntrega) {
+        this.dataEntrega = dataEntrega;
+    }
+
+    public boolean isConcluido() {
+        return concluido;
+    }
+
+    public void setConcluido(boolean concluido) {
+        this.concluido = concluido;
+    }
 }

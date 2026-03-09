@@ -53,7 +53,7 @@ public class TaskController {
         return ResponseEntity.ok(tasks);
     }
 
-    // 2. Blindagem adicionada aqui (@Valid)
+    // 2. Blindagem adicionada aqui (@Valid) e segurança de usuário mantida!
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizarTask(@PathVariable Long id, @Valid @RequestBody Task taskAtualizada, Authentication authentication) {
         User usuarioLogado = (User) authentication.getPrincipal();
@@ -67,8 +67,17 @@ public class TaskController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Erro: Você não tem permissão para alterar esta tarefa.");
         }
 
-        task.setTitulo(taskAtualizada.getTitulo());
-        task.setConcluida(taskAtualizada.isConcluida());
+        // --- A TRANSFERÊNCIA DE DADOS (O Pulo do Gato) ---
+        // Atualiza o título se o Front-end mandou um novo
+        if (taskAtualizada.getTitulo() != null) {
+            task.setTitulo(taskAtualizada.getTitulo());
+        }
+
+        // Atualiza a coluna do Kanban (PENDENTE, ANDAMENTO ou CONCLUIDO)
+        if (taskAtualizada.getStatus() != null) {
+            task.setStatus(taskAtualizada.getStatus());
+        }
+        // -------------------------------------------------
 
         return ResponseEntity.ok(taskRepository.save(task));
     }

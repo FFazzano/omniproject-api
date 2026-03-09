@@ -1,36 +1,51 @@
 package com.omniproject.API.controller;
 
 import com.omniproject.API.model.Comment;
+import com.omniproject.API.model.Task;
 import com.omniproject.API.repository.CommentRepository;
+import com.omniproject.API.repository.TaskRepository;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
-@RequestMapping("/comments")
-@CrossOrigin(origins = "*")
+@RequestMapping("/tasks/{taskId}/comments") // Rota RESTful nível Sênior
+@CrossOrigin(origins = "*") // Libera para o nosso Front-end acessar
 public class CommentController {
 
-    // 1. Injeção por Construtor (Padrão Sênior e Seguro)
-    private final CommentRepository repository;
+    @Autowired
+    private CommentRepository commentRepository;
 
-    public CommentController(CommentRepository repository) {
-        this.repository = repository;
-    }
+    @Autowired
+    private TaskRepository taskRepository;
 
-    // 2. O Leão de Chácara (@Valid) e o Retorno 201 (Created)
-    @PostMapping
-    public ResponseEntity<Comment> adicionarComentario(@Valid @RequestBody Comment comment) {
-        Comment comentarioSalvo = repository.save(comment);
-        return ResponseEntity.status(HttpStatus.CREATED).body(comentarioSalvo);
-    }
-
-    // 3. Retorno Profissional com Status 200 (OK)
+    // 1. Busca todos os comentários de uma tarefa específica
     @GetMapping
-    public ResponseEntity<List<Comment>> listarComentarios() {
-        return ResponseEntity.ok(repository.findAll());
+    public ResponseEntity<List<Comment>> listarComentarios(@PathVariable Long taskId) {
+        List<Comment> comentarios = commentRepository.findByTaskId(taskId);
+        return ResponseEntity.ok(comentarios);
+    }
+
+    // 2. Adiciona um novo comentário na tarefa
+    @PostMapping
+    public ResponseEntity<?> adicionarComentario(@PathVariable Long taskId, @Valid @RequestBody Comment comment) {
+        Optional<Task> taskOptional = taskRepository.findById(taskId);
+
+        if (taskOptional.isEmpty()) {
+            // Se a tarefa não existir, devolvemos um erro 404 limpo
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tarefa não encontrada.");
+        }
+
+        Task task = taskOptional.get();
+        comment.setTask(task); // Amarra o comentário à tarefa antes de salvar
+
+        Comment salvo = commentRepository.save(comment);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(salvo);
     }
 }
