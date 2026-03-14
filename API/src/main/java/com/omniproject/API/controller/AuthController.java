@@ -2,6 +2,7 @@ package com.omniproject.API.controller;
 
 import com.omniproject.API.config.TokenService;
 import com.omniproject.API.model.User;
+import com.omniproject.API.model.UserRole;
 import com.omniproject.API.repository.UserRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -53,6 +54,7 @@ public class AuthController {
         newUser.setNome(data.nome());
         newUser.setEmail(data.email());
         newUser.setSenha(encryptedPassword);
+        newUser.setRole(UserRole.USER);
 
         this.repository.save(newUser);
 

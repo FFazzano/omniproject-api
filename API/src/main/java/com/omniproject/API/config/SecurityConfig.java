@@ -39,6 +39,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
                         // Libera as checagens invisíveis (pré-voo) do navegador
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // 🚨 A NOVA PORTA DO CHEFE: Só quem tem cargo ADMIN passa daqui
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)

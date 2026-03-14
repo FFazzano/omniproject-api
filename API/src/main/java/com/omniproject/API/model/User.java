@@ -35,6 +35,10 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String senha;
 
+    // O EnumType.STRING salva a palavra "ADMIN" ou "USER" no banco de dados, e não o número 0 ou 1.
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
+
     public User() {
     }
 
@@ -69,7 +73,14 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        // Se o cargo for ADMIN, ele ganha as duas permissões.
+        if (this.role == UserRole.ADMIN) {
+            return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_USER"));
+        }
+        // Se for qualquer outra coisa (USER), ganha só a permissão base.
+        else {
+            return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        }
     }
 
     @Override
@@ -83,4 +94,12 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() { return true; }
+
+    public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
+    }
 }
