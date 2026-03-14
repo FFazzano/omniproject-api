@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalDate;
 import jakarta.persistence.Column;
@@ -27,10 +28,20 @@ public class Workspace {
     @Column(columnDefinition = "TEXT")
     private String descricao;
 
+    // O dono original do projeto continua existindo (não mexa nele!)
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnore
+    @JoinColumn(name = "user_id")
     private User user;
+
+    // --- NOVA RELAÇÃO: OS CONVIDADOS ---
+    // Cria uma tabela invisível no banco só para guardar quem foi convidado para qual projeto
+    @ManyToMany
+    @JoinTable(
+            name = "workspace_convidados",
+            joinColumns = @JoinColumn(name = "workspace_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> convidados = new ArrayList<>();
 
     @OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
@@ -101,5 +112,13 @@ public class Workspace {
 
     public void setConcluido(boolean concluido) {
         this.concluido = concluido;
+    }
+
+    public List<User> getConvidados() {
+        return convidados;
+    }
+
+    public void setConvidados(List<User> convidados) {
+        this.convidados = convidados;
     }
 }
