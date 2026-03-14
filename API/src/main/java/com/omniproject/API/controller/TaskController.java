@@ -18,7 +18,6 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class TaskController {
 
-    // 1. Injeção por Construtor Segura e Imutável
     private final TaskRepository taskRepository;
     private final WorkspaceRepository workspaceRepository;
 
@@ -27,12 +26,34 @@ public class TaskController {
         this.workspaceRepository = workspaceRepository;
     }
 
+    // ==========================================
+    // MÉTODO AUXILIAR DE PERMISSÃO (Boas Práticas OOP)
+    // ==========================================
+    private boolean temPermissao(Workspace workspace, User usuarioLogado) {
+        if (workspace == null) return false;
+
+        // 1. É o dono absoluto do projeto?
+        boolean isDono = workspace.getUser().getId().equals(usuarioLogado.getId());
+
+        // 2. É um convidado do projeto? (Verifica se a lista não é nula e procura o ID)
+        boolean isConvidado = workspace.getConvidados() != null && workspace.getConvidados().stream()
+                .anyMatch(convidado -> convidado.getId().equals(usuarioLogado.getId()));
+
+        // Retorna true se for dono OU convidado
+        return isDono || isConvidado;
+    }
+
+    // ==========================================
+    // ROTAS (ENDPOINTS)
+    // ==========================================
+
     @PostMapping
     public ResponseEntity<?> criarTask(@Valid @RequestBody Task task, Authentication authentication) {
         User usuarioLogado = (User) authentication.getPrincipal();
         Workspace workspace = workspaceRepository.findById(task.getWorkspace().getId()).orElse(null);
 
-        if (workspace == null || !workspace.getUser().getId().equals(usuarioLogado.getId())) {
+        // Usa o método auxiliar para barrar intrusos
+        if (!temPermissao(workspace, usuarioLogado)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Erro: Workspace não encontrado ou permissão negada.");
         }
 
@@ -45,7 +66,7 @@ public class TaskController {
         User usuarioLogado = (User) authentication.getPrincipal();
         Workspace workspace = workspaceRepository.findById(workspaceId).orElse(null);
 
-        if (workspace == null || !workspace.getUser().getId().equals(usuarioLogado.getId())) {
+        if (!temPermissao(workspace, usuarioLogado)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Erro: Acesso negado a este projeto.");
         }
 
@@ -53,7 +74,6 @@ public class TaskController {
         return ResponseEntity.ok(tasks);
     }
 
-    // 2. Blindagem adicionada aqui (@Valid) e segurança de usuário mantida!
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizarTask(@PathVariable Long id, @Valid @RequestBody Task taskAtualizada, Authentication authentication) {
         User usuarioLogado = (User) authentication.getPrincipal();
@@ -63,21 +83,17 @@ public class TaskController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tarefa não encontrada.");
         }
 
-        if (!task.getWorkspace().getUser().getId().equals(usuarioLogado.getId())) {
+        if (!temPermissao(task.getWorkspace(), usuarioLogado)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Erro: Você não tem permissão para alterar esta tarefa.");
         }
 
-        // --- A TRANSFERÊNCIA DE DADOS (O Pulo do Gato) ---
-        // Atualiza o título se o Front-end mandou um novo
         if (taskAtualizada.getTitulo() != null) {
             task.setTitulo(taskAtualizada.getTitulo());
         }
 
-        // Atualiza a coluna do Kanban (PENDENTE, ANDAMENTO ou CONCLUIDO)
         if (taskAtualizada.getStatus() != null) {
             task.setStatus(taskAtualizada.getStatus());
         }
-        // -------------------------------------------------
 
         return ResponseEntity.ok(taskRepository.save(task));
     }
@@ -91,7 +107,7 @@ public class TaskController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tarefa não encontrada.");
         }
 
-        if (!task.getWorkspace().getUser().getId().equals(usuarioLogado.getId())) {
+        if (!temPermissao(task.getWorkspace(), usuarioLogado)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Erro: Você não tem permissão para deletar esta tarefa.");
         }
 
