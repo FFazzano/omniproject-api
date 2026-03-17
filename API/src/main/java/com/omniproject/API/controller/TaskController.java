@@ -5,6 +5,7 @@ import com.omniproject.API.model.User;
 import com.omniproject.API.model.Workspace;
 import com.omniproject.API.repository.TaskRepository;
 import com.omniproject.API.repository.WorkspaceRepository;
+import com.omniproject.API.service.ActivityLogService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,26 +21,26 @@ public class TaskController {
 
     private final TaskRepository taskRepository;
     private final WorkspaceRepository workspaceRepository;
+    private final ActivityLogService activityLogService;
 
-    public TaskController(TaskRepository taskRepository, WorkspaceRepository workspaceRepository) {
+    public TaskController(TaskRepository taskRepository,
+                          WorkspaceRepository workspaceRepository,
+                          ActivityLogService activityLogService) {
         this.taskRepository = taskRepository;
         this.workspaceRepository = workspaceRepository;
+        this.activityLogService = activityLogService;
     }
 
     // ==========================================
-    // MÉTODO AUXILIAR DE PERMISSÃO (Boas Práticas OOP)
+    // MÉTODO AUXILIAR DE PERMISSÃO
     // ==========================================
     private boolean temPermissao(Workspace workspace, User usuarioLogado) {
         if (workspace == null) return false;
 
-        // 1. É o dono absoluto do projeto?
         boolean isDono = workspace.getUser().getId().equals(usuarioLogado.getId());
-
-        // 2. É um convidado do projeto? (Verifica se a lista não é nula e procura o ID)
         boolean isConvidado = workspace.getConvidados() != null && workspace.getConvidados().stream()
                 .anyMatch(convidado -> convidado.getId().equals(usuarioLogado.getId()));
 
-        // Retorna true se for dono OU convidado
         return isDono || isConvidado;
     }
 
@@ -52,13 +53,19 @@ public class TaskController {
         User usuarioLogado = (User) authentication.getPrincipal();
         Workspace workspace = workspaceRepository.findById(task.getWorkspace().getId()).orElse(null);
 
-        // Usa o método auxiliar para barrar intrusos
         if (!temPermissao(workspace, usuarioLogado)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Erro: Workspace não encontrado ou permissão negada.");
         }
 
         task.setWorkspace(workspace);
-        return ResponseEntity.status(HttpStatus.CREATED).body(taskRepository.save(task));
+        Task taskCriada = taskRepository.save(task);
+
+        // Registra ação no histórico
+        String descricao = activityLogService.formatarAcaoCriacaoTarefa(
+                usuarioLogado.getNome(), taskCriada.getTitulo());
+        activityLogService.registrarAcao(descricao, usuarioLogado, workspace, taskCriada);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(taskCriada);
     }
 
     @GetMapping("/workspace/{workspaceId}")
@@ -87,6 +94,8 @@ public class TaskController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Erro: Você não tem permissão para alterar esta tarefa.");
         }
 
+        String statusAnterior = task.getStatus();
+
         if (taskAtualizada.getTitulo() != null) {
             task.setTitulo(taskAtualizada.getTitulo());
         }
@@ -95,7 +104,16 @@ public class TaskController {
             task.setStatus(taskAtualizada.getStatus());
         }
 
-        return ResponseEntity.ok(taskRepository.save(task));
+        Task taskSalva = taskRepository.save(task);
+
+        // Registra ação no histórico se o status mudou
+        if (taskAtualizada.getStatus() != null && !taskAtualizada.getStatus().equals(statusAnterior)) {
+            String descricao = activityLogService.formatarAcaoAtualizacaoStatus(
+                    usuarioLogado.getNome(), taskSalva.getTitulo(), statusAnterior, taskSalva.getStatus());
+            activityLogService.registrarAcao(descricao, usuarioLogado, taskSalva.getWorkspace(), taskSalva);
+        }
+
+        return ResponseEntity.ok(taskSalva);
     }
 
     @DeleteMapping("/{id}")
@@ -110,6 +128,11 @@ public class TaskController {
         if (!temPermissao(task.getWorkspace(), usuarioLogado)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Erro: Você não tem permissão para deletar esta tarefa.");
         }
+
+        // Registra ação antes de excluir (para manter a referência da task)
+        String descricao = activityLogService.formatarAcaoExclusaoTarefa(
+                usuarioLogado.getNome(), task.getTitulo());
+        activityLogService.registrarAcao(descricao, usuarioLogado, task.getWorkspace(), task);
 
         taskRepository.delete(task);
         return ResponseEntity.ok("Tarefa deletada com sucesso!");
