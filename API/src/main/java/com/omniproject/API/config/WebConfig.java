@@ -9,13 +9,15 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**") // Libera todas as rotas da API
+        registry.addMapping("/**")
+                // Se você estava usando .allowedOriginPatterns("*"), localhost já deve funcionar.
+                // Mas a prática Sênior e mais segura é listar as origens exatas:
                 .allowedOrigins(
-                        "http://localhost:5173", // URL do seu React local (Vite)
-                        "https://omniproject-frontend.vercel.app" // Substitua pela URL real do seu front-end na Vercel
+                        "http://localhost:5173", // Ambiente de Desenvolvimento (Vite)
+                        "https://seu-frontend.vercel.app" // ATENÇÃO: Coloque aqui a URL real do seu Vercel
                 )
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "TRACE", "CONNECT")
-                .allowedHeaders("*") // Permite todos os cabeçalhos (incluindo o Authorization)
-                .allowCredentials(true); // Necessário se houver tráfego de cookies ou headers de autenticação complexos
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
+                .allowedHeaders("*")
+                .allowCredentials(true); // Necessário para enviar o token JWT/Cookies com segurança
     }
 }
