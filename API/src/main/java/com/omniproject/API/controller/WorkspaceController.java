@@ -117,15 +117,23 @@ public class WorkspaceController {
         }
         User amigo = amigoOpt.get();
 
-        if (workspace.getConvidados().contains(amigo)) {
+        // Valida se já é membro
+        boolean jaMembro = workspace.getConvidados().stream().anyMatch(u -> u.getId().equals(amigo.getId()));
+        if (jaMembro) {
             return ResponseEntity.badRequest().body("Este usuário já é um membro do projeto!");
+        }
+
+        // Valida se já foi convidado
+        boolean jaConvidado = workspace.getConvitesPendentes().stream().anyMatch(u -> u.getId().equals(amigo.getId()));
+        if (jaConvidado) {
+            return ResponseEntity.badRequest().body("Um convite já foi enviado para este usuário e está pendente!");
         }
 
         if (amigo.getId().equals(donoLogado.getId())) {
             return ResponseEntity.badRequest().body("Você não pode convidar a si mesmo!");
         }
 
-        workspace.getConvidados().add(amigo);
+        workspace.getConvitesPendentes().add(amigo);
         workspaceRepository.save(workspace);
 
         // Registra ação no histórico
@@ -134,6 +142,65 @@ public class WorkspaceController {
         activityLogService.registrarAcao(descricao, donoLogado, workspace, null);
 
         return ResponseEntity.ok("Convite enviado com sucesso! " + amigo.getNome() + " agora faz parte do projeto.");
+    }
+
+    @GetMapping("/convites")
+    public ResponseEntity<List<Workspace>> listarConvitesPendentes(Authentication authentication) {
+        User usuarioLogado = (User) authentication.getPrincipal();
+        
+        List<Workspace> todos = workspaceRepository.findAll();
+        List<Workspace> meusConvites = todos.stream()
+                .filter(w -> w.getConvitesPendentes().stream().anyMatch(u -> u.getId().equals(usuarioLogado.getId())))
+                .toList();
+                
+        return ResponseEntity.ok(meusConvites);
+    }
+
+    @PostMapping("/{id}/aceitar-convite")
+    public ResponseEntity<?> aceitarConvite(@PathVariable Long id, Authentication authentication) {
+        User usuarioLogado = (User) authentication.getPrincipal();
+        Workspace workspace = workspaceRepository.findById(id).orElse(null);
+
+        if (workspace == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Projeto não encontrado.");
+        }
+
+        boolean isConvidado = workspace.getConvitesPendentes().stream().anyMatch(u -> u.getId().equals(usuarioLogado.getId()));
+        if (!isConvidado) {
+            return ResponseEntity.badRequest().body("Convite inválido ou não encontrado.");
+        }
+
+        workspace.getConvitesPendentes().removeIf(u -> u.getId().equals(usuarioLogado.getId()));
+        workspace.getConvidados().add(usuarioLogado);
+        workspaceRepository.save(workspace);
+
+        // Notifica o dono que o convite foi aceito
+        activityLogService.registrarAcao(usuarioLogado.getNome() + " aceitou o convite para participar do projeto.", usuarioLogado, workspace, null);
+
+        return ResponseEntity.ok("Convite aceito com sucesso!");
+    }
+
+    @PostMapping("/{id}/recusar-convite")
+    public ResponseEntity<?> recusarConvite(@PathVariable Long id, Authentication authentication) {
+        User usuarioLogado = (User) authentication.getPrincipal();
+        Workspace workspace = workspaceRepository.findById(id).orElse(null);
+
+        if (workspace == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Projeto não encontrado.");
+        }
+
+        boolean isConvidado = workspace.getConvitesPendentes().stream().anyMatch(u -> u.getId().equals(usuarioLogado.getId()));
+        if (!isConvidado) {
+            return ResponseEntity.badRequest().body("Convite inválido ou não encontrado.");
+        }
+
+        workspace.getConvitesPendentes().removeIf(u -> u.getId().equals(usuarioLogado.getId()));
+        workspaceRepository.save(workspace);
+
+        // Notifica o dono que o convite foi recusado
+        activityLogService.registrarAcao(usuarioLogado.getNome() + " recusou o convite para o projeto.", usuarioLogado, workspace, null);
+
+        return ResponseEntity.ok("Convite recusado.");
     }
 
     @DeleteMapping("/{id}")

@@ -44,6 +44,15 @@ public class Workspace {
     )
     private Set<User> convidados = new HashSet<>();
 
+    // --- SALA DE ESPERA (CONVITES PENDENTES) ---
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "workspace_convites_pendentes",
+            joinColumns = @JoinColumn(name = "workspace_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<User> convitesPendentes = new HashSet<>();
+
     @OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<Task> tasks = new HashSet<>();
@@ -133,5 +142,13 @@ public class Workspace {
 
     public void setConvidados(Set<User> convidados) {
         this.convidados = convidados;
+    }
+
+    public Set<User> getConvitesPendentes() {
+        return convitesPendentes;
+    }
+
+    public void setConvitesPendentes(Set<User> convitesPendentes) {
+        this.convitesPendentes = convitesPendentes;
     }
 }
