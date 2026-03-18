@@ -1,5 +1,6 @@
 package com.omniproject.API.dto;
 
+// DTO de Requisição para criar/editar Tarefas
 import jakarta.validation.constraints.NotBlank;
 
 public record TaskRequestDTO(

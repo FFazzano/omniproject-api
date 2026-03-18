@@ -1,5 +1,6 @@
 package com.omniproject.API.dto;
 
+// DTO de Resposta para envio de Tarefas ao Front-end
 import com.omniproject.API.model.Task;
 import java.time.LocalDateTime;
 

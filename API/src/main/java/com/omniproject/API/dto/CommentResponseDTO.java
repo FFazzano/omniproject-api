@@ -1,5 +1,6 @@
 package com.omniproject.API.dto;
 
+// DTO de Resposta para Comentários
 import com.omniproject.API.model.Comment;
 import java.time.LocalDateTime;
 

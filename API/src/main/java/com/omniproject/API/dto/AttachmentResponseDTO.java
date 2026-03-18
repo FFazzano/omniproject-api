@@ -1,5 +1,6 @@
 package com.omniproject.API.dto;
 
+// DTO de Resposta para os Anexos
 import com.omniproject.API.model.Attachment;
 
 public record AttachmentResponseDTO(
