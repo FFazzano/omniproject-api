@@ -14,7 +14,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/workspaces")
-@CrossOrigin(origins = "*")
 public class ActivityLogController {
 
     private final ActivityLogService activityLogService;

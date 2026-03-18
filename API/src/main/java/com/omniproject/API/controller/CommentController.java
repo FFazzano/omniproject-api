@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/tasks/{taskId}/comments") // Rota RESTful nível Sênior
-@CrossOrigin(origins = "*") // Libera para o nosso Front-end acessar
 public class CommentController {
 
     @Autowired
