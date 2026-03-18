@@ -8,6 +8,10 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,13 +36,13 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @PostMapping("/login")
+    @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> login(@Valid @RequestBody LoginDTO data) {
         // Força o log aparecer imediatamente no painel do Render
-        System.out.println("Recebendo login para: " + data.email());
+        System.out.println("Recebendo login para: " + data.getEmail());
 
         try {
-            var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.senha());
+            var usernamePassword = new UsernamePasswordAuthenticationToken(data.getEmail(), data.getSenha());
             var auth = this.authenticationManager.authenticate(usernamePassword);
 
             var token = tokenService.gerarToken((User) auth.getPrincipal());
@@ -73,14 +77,17 @@ public class AuthController {
     // DTOs (Data Transfer Objects) COM BLINDAGEM
     // ==========================================
 
-    public record LoginDTO(
-            @NotBlank(message = "O e-mail é obrigatório.")
-            @Email(message = "Formato de e-mail inválido.")
-            String email,
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class LoginDTO {
+        @NotBlank(message = "O e-mail é obrigatório.")
+        @Email(message = "Formato de e-mail inválido.")
+        private String email;
 
-            @NotBlank(message = "A senha é obrigatória.")
-            String senha
-    ) {}
+        @NotBlank(message = "A senha é obrigatória.")
+        private String senha;
+    }
 
     public record RegisterDTO(
             @NotBlank(message = "O nome é obrigatório.")
