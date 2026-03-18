@@ -1,6 +1,5 @@
 package com.omniproject.API.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -15,12 +14,10 @@ public class Attachment {
     private String fileType;
 
     @org.hibernate.annotations.JdbcTypeCode(java.sql.Types.VARBINARY)
-    @JsonIgnore // Impede que o arquivo pesado seja carregado em listagens JSON
     private byte[] data;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "task_id", nullable = false)
-    @JsonIgnore
     private Task task;
 
     public Attachment() {}

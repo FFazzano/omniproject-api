@@ -1,5 +1,7 @@
 package com.omniproject.API.controller;
 
+import com.omniproject.API.dto.TaskRequestDTO;
+import com.omniproject.API.dto.TaskResponseDTO;
 import com.omniproject.API.model.Task;
 import com.omniproject.API.model.User;
 import com.omniproject.API.model.Workspace;
@@ -15,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/tasks")
@@ -57,14 +60,18 @@ public class TaskController {
     // ==========================================
 
     @PostMapping
-    public ResponseEntity<?> criarTask(@Valid @RequestBody Task task, Authentication authentication) {
+    public ResponseEntity<?> criarTask(@Valid @RequestBody TaskRequestDTO taskDTO, Authentication authentication) {
         User usuarioLogado = (User) authentication.getPrincipal();
-        Workspace workspace = workspaceRepository.findById(task.getWorkspace().getId()).orElse(null);
+        Workspace workspace = workspaceRepository.findById(taskDTO.workspaceId()).orElse(null);
 
         if (!temPermissao(workspace, usuarioLogado)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Erro: Workspace não encontrado ou permissão negada.");
         }
 
+        Task task = new Task();
+        task.setTitulo(taskDTO.titulo());
+        task.setDescricao(taskDTO.descricao());
+        if (taskDTO.status() != null) task.setStatus(taskDTO.status());
         task.setWorkspace(workspace);
         Task taskCriada = taskRepository.save(task);
 
@@ -73,24 +80,25 @@ public class TaskController {
                 usuarioLogado.getNome(), taskCriada.getTitulo());
         activityLogService.registrarAcao(descricao, usuarioLogado, workspace, taskCriada);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(taskCriada);
+        return ResponseEntity.status(HttpStatus.CREATED).body(TaskResponseDTO.from(taskCriada));
     }
 
     @GetMapping("/workspace/{workspaceId}")
-    public ResponseEntity<?> listarTasksDoWorkspace(@PathVariable Long workspaceId, Authentication authentication) {
+    public ResponseEntity<List<TaskResponseDTO>> listarTasksDoWorkspace(@PathVariable Long workspaceId, Authentication authentication) {
         User usuarioLogado = (User) authentication.getPrincipal();
         Workspace workspace = workspaceRepository.findById(workspaceId).orElse(null);
 
         if (!temPermissao(workspace, usuarioLogado)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Erro: Acesso negado a este projeto.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        List<Task> tasks = taskRepository.findByWorkspaceId(workspaceId);
+        List<TaskResponseDTO> tasks = taskRepository.findByWorkspaceId(workspaceId).stream()
+                .map(TaskResponseDTO::from).collect(Collectors.toList());
         return ResponseEntity.ok(tasks);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizarTask(@PathVariable Long id, @Valid @RequestBody Task taskAtualizada, Authentication authentication) {
+    public ResponseEntity<?> atualizarTask(@PathVariable Long id, @Valid @RequestBody TaskRequestDTO taskAtualizada, Authentication authentication) {
         User usuarioLogado = (User) authentication.getPrincipal();
         Task task = taskRepository.findById(id).orElse(null);
 
@@ -104,24 +112,24 @@ public class TaskController {
 
         String statusAnterior = task.getStatus();
 
-        if (taskAtualizada.getTitulo() != null) {
-            task.setTitulo(taskAtualizada.getTitulo());
+        if (taskAtualizada.titulo() != null) {
+            task.setTitulo(taskAtualizada.titulo());
         }
 
-        if (taskAtualizada.getStatus() != null) {
-            task.setStatus(taskAtualizada.getStatus());
+        if (taskAtualizada.status() != null) {
+            task.setStatus(taskAtualizada.status());
         }
 
         Task taskSalva = taskRepository.save(task);
 
         // Registra ação no histórico se o status mudou
-        if (taskAtualizada.getStatus() != null && !taskAtualizada.getStatus().equals(statusAnterior)) {
+        if (taskAtualizada.status() != null && !taskAtualizada.status().equals(statusAnterior)) {
             String descricao = activityLogService.formatarAcaoAtualizacaoStatus(
                     usuarioLogado.getNome(), taskSalva.getTitulo(), statusAnterior, taskSalva.getStatus());
             activityLogService.registrarAcao(descricao, usuarioLogado, taskSalva.getWorkspace(), taskSalva);
         }
 
-        return ResponseEntity.ok(taskSalva);
+        return ResponseEntity.ok(TaskResponseDTO.from(taskSalva));
     }
 
     @DeleteMapping("/{id}")

@@ -1,0 +1,11 @@
+package com.omniproject.API.dto;
+
+import jakarta.validation.constraints.NotBlank;
+
+public record TaskRequestDTO(
+        @NotBlank(message = "O título da tarefa é obrigatório.")
+        String titulo,
+        String descricao,
+        String status,
+        Long workspaceId
+) {}

@@ -1,5 +1,6 @@
 package com.omniproject.API.controller;
 
+import com.omniproject.API.dto.AttachmentResponseDTO;
 import com.omniproject.API.model.Attachment;
 import com.omniproject.API.model.Task;
 import com.omniproject.API.repository.AttachmentRepository;
@@ -13,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -40,10 +42,12 @@ public class AttachmentController {
         }
     }
 
-    // 2. Listar Anexos da Tarefa (O @JsonIgnore garante que só os metadados sejam devolvidos)
+    // 2. Listar Anexos da Tarefa (O DTO garante que os bytes gigantes não sejam trafegados na lista)
     @GetMapping("/tasks/{taskId}/attachments")
-    public ResponseEntity<List<Attachment>> listarAnexos(@PathVariable Long taskId) {
-        return ResponseEntity.ok(attachmentRepository.findByTaskId(taskId));
+    public ResponseEntity<List<AttachmentResponseDTO>> listarAnexos(@PathVariable Long taskId) {
+        List<AttachmentResponseDTO> res = attachmentRepository.findByTaskId(taskId).stream()
+                .map(AttachmentResponseDTO::from).collect(Collectors.toList());
+        return ResponseEntity.ok(res);
     }
 
     // 3. Download/Visualização do Arquivo (Devolve os bytes reais)
