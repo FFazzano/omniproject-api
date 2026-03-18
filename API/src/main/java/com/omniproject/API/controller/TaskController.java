@@ -5,6 +5,8 @@ import com.omniproject.API.model.User;
 import com.omniproject.API.model.Workspace;
 import com.omniproject.API.repository.TaskRepository;
 import com.omniproject.API.repository.WorkspaceRepository;
+import com.omniproject.API.repository.AttachmentRepository;
+import com.omniproject.API.repository.ActivityLogRepository;
 import com.omniproject.API.service.ActivityLogService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -22,13 +24,19 @@ public class TaskController {
     private final TaskRepository taskRepository;
     private final WorkspaceRepository workspaceRepository;
     private final ActivityLogService activityLogService;
+    private final AttachmentRepository attachmentRepository;
+    private final ActivityLogRepository activityLogRepository;
 
     public TaskController(TaskRepository taskRepository,
                           WorkspaceRepository workspaceRepository,
-                          ActivityLogService activityLogService) {
+                          ActivityLogService activityLogService,
+                          AttachmentRepository attachmentRepository,
+                          ActivityLogRepository activityLogRepository) {
         this.taskRepository = taskRepository;
         this.workspaceRepository = workspaceRepository;
         this.activityLogService = activityLogService;
+        this.attachmentRepository = attachmentRepository;
+        this.activityLogRepository = activityLogRepository;
     }
 
     // ==========================================
@@ -132,7 +140,12 @@ public class TaskController {
         // Registra ação antes de excluir (para manter a referência da task)
         String descricao = activityLogService.formatarAcaoExclusaoTarefa(
                 usuarioLogado.getNome(), task.getTitulo());
-        activityLogService.registrarAcao(descricao, usuarioLogado, task.getWorkspace(), task);
+        // Passamos 'null' na task para que ESTE log em específico não seja apagado pela limpeza abaixo!
+        activityLogService.registrarAcao(descricao, usuarioLogado, task.getWorkspace(), null);
+
+        // Deleção Manual Segura das dependências (evita o Erro 500 de Foreign Key)
+        attachmentRepository.deleteByTaskId(id);
+        activityLogRepository.deleteByTaskId(id);
 
         taskRepository.delete(task);
         return ResponseEntity.ok("Tarefa deletada com sucesso!");
