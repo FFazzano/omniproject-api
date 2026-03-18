@@ -38,8 +38,8 @@ public class AuthController {
 
     @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> login(@Valid @RequestBody LoginDTO data) {
-        // Força o log aparecer imediatamente no painel do Render
-        System.out.println("Recebendo login para: " + data.getEmail());
+        // Armadilha 1: Log para saber se a requisição de fato chegou aqui
+        System.out.println(">>> INICIANDO LOGIN PARA: " + data.getEmail());
 
         try {
             var usernamePassword = new UsernamePasswordAuthenticationToken(data.getEmail(), data.getSenha());
@@ -50,6 +50,7 @@ public class AuthController {
             return ResponseEntity.ok(new TokenDTO(token));
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println(">>> ERRO NO LOGIN: " + e.getMessage());
             return ResponseEntity.status(500).body("Erro interno detalhado: " + e.getMessage());
         }
     }

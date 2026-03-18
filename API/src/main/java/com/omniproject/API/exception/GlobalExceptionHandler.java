@@ -34,6 +34,9 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
     public Map<String, String> handleGenericExceptions(Exception ex) {
+        // Armadilha 2: OBRIGATÓRIO imprimir no console para não engolir o stacktrace original do erro 500
+        ex.printStackTrace(); 
+        
         Map<String, String> error = new HashMap<>();
         error.put("erro", "Ocorreu um erro interno no servidor.");
         error.put("detalhe", ex.getMessage()); // Mostra o motivo técnico real
