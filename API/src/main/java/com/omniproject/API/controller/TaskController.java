@@ -87,7 +87,11 @@ public class TaskController {
         User usuarioLogado = (User) authentication.getPrincipal();
         Workspace workspace = workspaceRepository.findById(workspaceId).orElse(null);
 
+        // Log solicitado para ajudar no debug
+        System.out.println(">>> Usuário logado tentando acessar tarefas: " + usuarioLogado.getEmail());
+
         if (!temPermissao(workspace, usuarioLogado)) {
+            System.out.println(">>> ERRO: Usuário " + usuarioLogado.getEmail() + " bloqueado. Workspace ID " + workspaceId + " não existe ou não pertence a ele.");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
