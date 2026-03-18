@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.List;
 import java.time.LocalDate;
 import jakarta.persistence.Column;
@@ -41,11 +43,11 @@ public class Workspace {
             joinColumns = @JoinColumn(name = "workspace_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private List<User> convidados = new ArrayList<>();
+    private Set<User> convidados = new HashSet<>();
 
     @OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<Task> tasks;
+    private Set<Task> tasks = new HashSet<>();
 
     @Column(name = "criado_em", updatable = false)
     private LocalDateTime criadoEm;
@@ -84,8 +86,8 @@ public class Workspace {
     public void setUser(User user) { this.user = user; }
 
     // O Getter e Setter que faltavam para as tarefas!
-    public List<Task> getTasks() { return tasks; }
-    public void setTasks(List<Task> tasks) { this.tasks = tasks; }
+    public Set<Task> getTasks() { return tasks; }
+    public void setTasks(Set<Task> tasks) { this.tasks = tasks; }
 
     public LocalDateTime getCriadoEm() { return criadoEm; }
     public void setCriadoEm(LocalDateTime criadoEm) { this.criadoEm = criadoEm; }
@@ -114,11 +116,11 @@ public class Workspace {
         this.concluido = concluido;
     }
 
-    public List<User> getConvidados() {
+    public Set<User> getConvidados() {
         return convidados;
     }
 
-    public void setConvidados(List<User> convidados) {
+    public void setConvidados(Set<User> convidados) {
         this.convidados = convidados;
     }
 }
