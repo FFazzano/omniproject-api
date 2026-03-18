@@ -35,13 +35,21 @@ public class Task {
     @JsonIgnore
     private Workspace workspace;
 
-    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Comment> comentarios;
 
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Attachment> attachments;
+
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<ActivityLog> activityLogs;
 
     @Column(name = "criado_em", updatable = false)
     private LocalDateTime criadoEm;
+
 
     public Task() {
     }
@@ -101,6 +109,22 @@ public class Task {
 
     public void setComentarios(List<Comment> comentarios) {
         this.comentarios = comentarios;
+    }
+
+    public List<Attachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(List<Attachment> attachments) {
+        this.attachments = attachments;
+    }
+
+    public List<ActivityLog> getActivityLogs() {
+        return activityLogs;
+    }
+
+    public void setActivityLogs(List<ActivityLog> activityLogs) {
+        this.activityLogs = activityLogs;
     }
 
     public LocalDateTime getCriadoEm() {

@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.List;
 import java.time.LocalDate;
 import jakarta.persistence.Column;
 import jakarta.persistence.PrePersist;
@@ -43,9 +44,13 @@ public class Workspace {
     )
     private Set<User> convidados = new HashSet<>();
 
-    @OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<Task> tasks = new HashSet<>();
+
+    @OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<ActivityLog> activityLogs;
 
     @Column(name = "criado_em", updatable = false)
     private LocalDateTime criadoEm;
@@ -86,6 +91,14 @@ public class Workspace {
     // O Getter e Setter que faltavam para as tarefas!
     public Set<Task> getTasks() { return tasks; }
     public void setTasks(Set<Task> tasks) { this.tasks = tasks; }
+
+    public List<ActivityLog> getActivityLogs() {
+        return activityLogs;
+    }
+
+    public void setActivityLogs(List<ActivityLog> activityLogs) {
+        this.activityLogs = activityLogs;
+    }
 
     public LocalDateTime getCriadoEm() { return criadoEm; }
     public void setCriadoEm(LocalDateTime criadoEm) { this.criadoEm = criadoEm; }
