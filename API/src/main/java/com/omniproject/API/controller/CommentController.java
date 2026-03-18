@@ -33,7 +33,7 @@ public class CommentController {
     @GetMapping
     public ResponseEntity<List<CommentResponseDTO>> listarComentarios(@PathVariable Long taskId) {
         List<CommentResponseDTO> comentarios = commentRepository.findByTaskId(taskId).stream()
-                .map(CommentResponseDTO::from).collect(Collectors.toList());
+                .map(CommentResponseDTO::new).collect(Collectors.toList());
         return ResponseEntity.ok(comentarios);
     }
 
@@ -58,6 +58,6 @@ public class CommentController {
 
         Comment salvo = commentRepository.save(comment);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(CommentResponseDTO.from(salvo));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new CommentResponseDTO(salvo));
     }
 }

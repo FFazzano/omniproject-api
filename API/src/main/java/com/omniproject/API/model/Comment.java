@@ -26,6 +26,11 @@ public class Comment {
     @JsonIgnore // Evita o loop infinito na hora de gerar o JSON
     private Task task;
 
+    // Relacionamento com o Usuário
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     public Comment() {
     }
 
@@ -48,4 +53,7 @@ public class Comment {
 
     public Task getTask() { return task; }
     public void setTask(Task task) { this.task = task; }
+
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 }

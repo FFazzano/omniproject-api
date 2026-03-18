@@ -1,5 +1,6 @@
 package com.omniproject.API.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -31,9 +32,11 @@ public class Task {
 
     @ManyToOne
     @JoinColumn(name = "workspace_id", nullable = false)
+    @JsonIgnore
     private Workspace workspace;
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Comment> comentarios;
 
 

@@ -1,5 +1,6 @@
 package com.omniproject.API.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -45,6 +46,7 @@ public class Workspace {
     private Set<User> convidados = new HashSet<>();
 
     @OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private Set<Task> tasks = new HashSet<>();
 
     @Column(name = "criado_em", updatable = false)
