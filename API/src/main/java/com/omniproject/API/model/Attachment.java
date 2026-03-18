@@ -14,7 +14,7 @@ public class Attachment {
     private String fileName;
     private String fileType;
 
-    @Lob
+    @org.hibernate.annotations.JdbcTypeCode(java.sql.Types.VARBINARY)
     @JsonIgnore // Impede que o arquivo pesado seja carregado em listagens JSON
     private byte[] data;
 
