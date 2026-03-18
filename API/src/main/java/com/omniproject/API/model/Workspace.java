@@ -42,6 +42,7 @@ public class Workspace {
             joinColumns = @JoinColumn(name = "workspace_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
+    @JsonIgnore
     private Set<User> convidados = new HashSet<>();
 
     // --- SALA DE ESPERA (CONVITES PENDENTES) ---
@@ -51,6 +52,7 @@ public class Workspace {
             joinColumns = @JoinColumn(name = "workspace_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
+    @JsonIgnore
     private Set<User> convitesPendentes = new HashSet<>();
 
     @OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
