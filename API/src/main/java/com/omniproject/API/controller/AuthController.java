@@ -34,12 +34,20 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginDTO data) {
-        var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.senha());
-        var auth = this.authenticationManager.authenticate(usernamePassword);
+        // Força o log aparecer imediatamente no painel do Render
+        System.out.println("Recebendo login para: " + data.email());
 
-        var token = tokenService.gerarToken((User) auth.getPrincipal());
+        try {
+            var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.senha());
+            var auth = this.authenticationManager.authenticate(usernamePassword);
 
-        return ResponseEntity.ok(new TokenDTO(token));
+            var token = tokenService.gerarToken((User) auth.getPrincipal());
+
+            return ResponseEntity.ok(new TokenDTO(token));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Erro interno detalhado: " + e.getMessage());
+        }
     }
 
     @PostMapping("/register")
