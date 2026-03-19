@@ -1,71 +1,66 @@
 package com.omniproject.API.service;
 
-import com.omniproject.API.model.ActivityLog;
-import com.omniproject.API.model.Task;
 import com.omniproject.API.model.User;
 import com.omniproject.API.model.Workspace;
-import com.omniproject.API.repository.ActivityLogRepository;
+import com.omniproject.API.model.ActivityLog;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class ActivityLogService {
 
-    private final ActivityLogRepository activityLogRepository;
-
-    public ActivityLogService(ActivityLogRepository activityLogRepository) {
-        this.activityLogRepository = activityLogRepository;
+    // Retorna a string formatada para o log
+    public String formatarAcaoCriacaoWorkspace(String workspaceNome, String userName) {
+        return "Workspace " + workspaceNome + " criado por " + userName;
     }
 
-    @Transactional
-    public ActivityLog registrarAcao(String descricao, User usuario, Workspace workspace, Task task) {
-        ActivityLog log = new ActivityLog();
-        log.setDescricao(descricao);
-        log.setUsuario(usuario);
-        log.setWorkspace(workspace);
-        log.setTask(task);
-        return activityLogRepository.save(log);
+    // Retorna a string formatada para a edição do workspace
+    public String formatarAcaoEdicaoWorkspace(String workspaceNome, String userName) {
+        return "Workspace " + workspaceNome + " editado por " + userName;
     }
 
-    @Transactional(readOnly = true)
+    // Retorna a string formatada para a conclusão/reabertura do workspace
+    public String formatarAcaoConclusaoWorkspace(String workspaceNome, String userName, boolean concluido) {
+        return "Workspace " + workspaceNome + (concluido ? " concluído" : " reaberto") + " por " + userName;
+    }
+
+    // Retorna a string formatada para o envio de convite a um membro
+    public String formatarAcaoConvite(String workspaceNome, String inviterName, String inviteeEmail) {
+        return "Usuário " + inviteeEmail + " convidado para o Workspace " + workspaceNome + " por " + inviterName;
+    }
+
+    // Retorna a string formatada para a criação de uma tarefa
+    public String formatarAcaoCriacaoTarefa(String taskTitle, String userName) {
+        return "Tarefa " + taskTitle + " criada por " + userName;
+    }
+
+    // Retorna a string formatada para a atualização de status de uma tarefa
+    public String formatarAcaoAtualizacaoStatus(String taskTitle, String oldStatus, String newStatus, String userName) {
+        return "Status da tarefa " + taskTitle + " alterado de " + oldStatus + " para " + newStatus + " por " + userName;
+    }
+
+    // Retorna a string formatada para a exclusão de uma tarefa
+    public String formatarAcaoExclusaoTarefa(String taskTitle, String userName) {
+        return "Tarefa " + taskTitle + " excluída por " + userName;
+    }
+
+    // Assinatura do método que registra a ação no banco de dados (pode ser expandido depois)
+    public void registrarAcao(String acao, User usuario, Workspace workspace, Object detalhes) {
+        // Aqui irá a lógica de salvar na entidade ActivityLog (ex: activityLogRepository.save(...))
+        System.out.println("LOG REGISTRADO: " + acao);
+    }
+
+    // Retorna a lista de logs de um workspace específico
     public List<ActivityLog> buscarLogsPorWorkspace(Long workspaceId) {
-        return activityLogRepository.findByWorkspaceIdOrderByDataHoraDesc(workspaceId);
+        // Aqui irá a lógica real, ex: return activityLogRepository.findByWorkspaceId(workspaceId);
+        return new ArrayList<>(); // Retornando lista vazia apenas para compilar por enquanto
     }
 
-    @Transactional(readOnly = true)
-    public List<ActivityLog> buscarUltimosLogsPorWorkspace(Long workspaceId, int quantidade) {
-        return activityLogRepository.findTop10ByWorkspaceIdOrderByDataHoraDesc(workspaceId);
-    }
-
-    public String formatarAcaoCriacaoTarefa(String nomeUsuario, String tituloTarefa) {
-        return String.format("%s criou a tarefa '%s'", nomeUsuario, tituloTarefa);
-    }
-
-    public String formatarAcaoAtualizacaoStatus(String nomeUsuario, String tituloTarefa, String statusAnterior, String statusNovo) {
-        return String.format("%s moveu a tarefa '%s' de %s para %s",
-                nomeUsuario, tituloTarefa, statusAnterior, statusNovo);
-    }
-
-    public String formatarAcaoConclusaoWorkspace(String nomeUsuario, String nomeWorkspace, boolean concluido) {
-        String acao = concluido ? "concluiu" : "reabriu";
-        return String.format("%s %s o projeto '%s'", nomeUsuario, acao, nomeWorkspace);
-    }
-
-    public String formatarAcaoCriacaoWorkspace(String nomeUsuario, String nomeWorkspace) {
-        return String.format("%s criou o projeto '%s'", nomeUsuario, nomeWorkspace);
-    }
-
-    public String formatarAcaoEdicaoWorkspace(String nomeUsuario, String nomeWorkspace) {
-        return String.format("%s editou o projeto '%s'", nomeUsuario, nomeWorkspace);
-    }
-
-    public String formatarAcaoExclusaoTarefa(String nomeUsuario, String tituloTarefa) {
-        return String.format("%s excluiu a tarefa '%s'", nomeUsuario, tituloTarefa);
-    }
-
-    public String formatarAcaoConvite(String nomeDono, String nomeConvidado, String nomeWorkspace) {
-        return String.format("%s convidou %s para o projeto '%s'", nomeDono, nomeConvidado, nomeWorkspace);
+    // Retorna os últimos N logs de um workspace específico
+    public List<ActivityLog> buscarUltimosLogsPorWorkspace(Long workspaceId, int limit) {
+        // Aqui irá a lógica real com paginação, ex: return activityLogRepository.findByWorkspaceIdOrderByDataHoraDesc(workspaceId, PageRequest.of(0, limit));
+        return new ArrayList<>(); // Retornando lista vazia apenas para compilar por enquanto
     }
 }
