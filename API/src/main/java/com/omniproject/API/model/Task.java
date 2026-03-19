@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -50,6 +51,15 @@ public class Task {
     @Column(name = "criado_em", updatable = false)
     private LocalDateTime criadoEm;
 
+    @Column(name = "data_vencimento")
+    private LocalDate dataVencimento;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_recorrencia")
+    private TipoRecorrencia tipoRecorrencia = TipoRecorrencia.NENHUMA;
+
+    @Column(name = "data_proxima_execucao")
+    private LocalDate dataProximaExecucao;
 
     public Task() {
     }
@@ -133,5 +143,29 @@ public class Task {
 
     public void setCriadoEm(LocalDateTime criadoEm) {
         this.criadoEm = criadoEm;
+    }
+
+    public LocalDate getDataVencimento() {
+        return dataVencimento;
+    }
+
+    public void setDataVencimento(LocalDate dataVencimento) {
+        this.dataVencimento = dataVencimento;
+    }
+
+    public TipoRecorrencia getTipoRecorrencia() {
+        return tipoRecorrencia;
+    }
+
+    public void setTipoRecorrencia(TipoRecorrencia tipoRecorrencia) {
+        this.tipoRecorrencia = tipoRecorrencia;
+    }
+
+    public LocalDate getDataProximaExecucao() {
+        return dataProximaExecucao;
+    }
+
+    public void setDataProximaExecucao(LocalDate dataProximaExecucao) {
+        this.dataProximaExecucao = dataProximaExecucao;
     }
 }

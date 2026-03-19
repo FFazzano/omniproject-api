@@ -10,6 +10,7 @@ import com.omniproject.api.repository.WorkspaceRepository;
 import com.omniproject.api.repository.AttachmentRepository;
 import com.omniproject.api.repository.ActivityLogRepository;
 import com.omniproject.api.service.ActivityLogService;
+import com.omniproject.api.service.TaskService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,17 +29,20 @@ public class TaskController {
     private final ActivityLogService activityLogService;
     private final AttachmentRepository attachmentRepository;
     private final ActivityLogRepository activityLogRepository;
+    private final TaskService taskService;
 
     public TaskController(TaskRepository taskRepository,
                           WorkspaceRepository workspaceRepository,
                           ActivityLogService activityLogService,
                           AttachmentRepository attachmentRepository,
-                          ActivityLogRepository activityLogRepository) {
+                          ActivityLogRepository activityLogRepository,
+                          TaskService taskService) {
         this.taskRepository = taskRepository;
         this.workspaceRepository = workspaceRepository;
         this.activityLogService = activityLogService;
         this.attachmentRepository = attachmentRepository;
         this.activityLogRepository = activityLogRepository;
+        this.taskService = taskService;
     }
 
     // ==========================================
@@ -71,12 +75,17 @@ public class TaskController {
         task.setTitulo(taskDTO.titulo());
         task.setDescricao(taskDTO.descricao());
         if (taskDTO.status() != null) task.setStatus(taskDTO.status());
+        
+        if (taskDTO.tipoRecorrencia() != null) {
+            task.setTipoRecorrencia(taskDTO.tipoRecorrencia());
+        }
+        
         task.setWorkspace(workspace);
         Task taskCriada = taskRepository.save(task);
 
         // Registra ação no histórico
         String descricao = activityLogService.formatarAcaoCriacaoTarefa(
-                usuarioLogado.getNome(), taskCriada.getTitulo());
+                taskCriada.getTitulo(), usuarioLogado.getNome());
         activityLogService.registrarAcao(descricao, usuarioLogado, workspace, taskCriada);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(TaskResponseDTO.from(taskCriada));
@@ -114,21 +123,25 @@ public class TaskController {
         }
 
         String statusAnterior = task.getStatus();
+        Task taskSalva = task;
 
         if (taskAtualizada.titulo() != null) {
             task.setTitulo(taskAtualizada.titulo());
+            taskSalva = taskRepository.save(task);
         }
 
-        if (taskAtualizada.status() != null) {
-            task.setStatus(taskAtualizada.status());
+        if (taskAtualizada.tipoRecorrencia() != null) {
+            task.setTipoRecorrencia(taskAtualizada.tipoRecorrencia());
+            taskSalva = taskRepository.save(task);
         }
 
-        Task taskSalva = taskRepository.save(task);
-
-        // Registra ação no histórico se o status mudou
         if (taskAtualizada.status() != null && !taskAtualizada.status().equals(statusAnterior)) {
+            
+            // Passa para o Service para que a regra de negócio (Recorrência e Notificação) seja executada!
+            taskSalva = taskService.atualizarStatus(id, taskAtualizada.status(), usuarioLogado);
+
             String descricao = activityLogService.formatarAcaoAtualizacaoStatus(
-                    usuarioLogado.getNome(), taskSalva.getTitulo(), statusAnterior, taskSalva.getStatus());
+                    taskSalva.getTitulo(), statusAnterior, taskSalva.getStatus(), usuarioLogado.getNome());
             activityLogService.registrarAcao(descricao, usuarioLogado, taskSalva.getWorkspace(), taskSalva);
         }
 
@@ -150,7 +163,7 @@ public class TaskController {
 
         // Registra ação antes de excluir (para manter a referência da task)
         String descricao = activityLogService.formatarAcaoExclusaoTarefa(
-                usuarioLogado.getNome(), task.getTitulo());
+                task.getTitulo(), usuarioLogado.getNome());
         // Passamos 'null' na task para que ESTE log em específico não seja apagado pela limpeza abaixo!
         activityLogService.registrarAcao(descricao, usuarioLogado, task.getWorkspace(), null);
 

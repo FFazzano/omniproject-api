@@ -2,14 +2,24 @@ package com.omniproject.api.service;
 
 import com.omniproject.api.model.User;
 import com.omniproject.api.model.Workspace;
+import com.omniproject.api.model.Task;
 import com.omniproject.api.model.ActivityLog;
+import com.omniproject.api.repository.ActivityLogRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ActivityLogService {
+
+    private final ActivityLogRepository activityLogRepository;
+
+    public ActivityLogService(ActivityLogRepository activityLogRepository) {
+        this.activityLogRepository = activityLogRepository;
+    }
 
     // Retorna a string formatada para o log
     public String formatarAcaoCriacaoWorkspace(String workspaceNome, String userName) {
@@ -48,19 +58,31 @@ public class ActivityLogService {
 
     // Assinatura do método que registra a ação no banco de dados (pode ser expandido depois)
     public void registrarAcao(String acao, User usuario, Workspace workspace, Object detalhes) {
-        // Aqui irá a lógica de salvar na entidade ActivityLog (ex: activityLogRepository.save(...))
-        System.out.println("LOG REGISTRADO: " + acao);
+        ActivityLog log = new ActivityLog();
+        log.setDescricao(acao);
+        log.setWorkspace(workspace);
+        log.setDataHora(LocalDateTime.now());
+        
+        // Associar a tarefa se o log for específico de uma tarefa
+        if (detalhes instanceof Task) {
+            log.setTask((Task) detalhes);
+        }
+        
+        activityLogRepository.save(log);
     }
 
     // Retorna a lista de logs de um workspace específico
     public List<ActivityLog> buscarLogsPorWorkspace(Long workspaceId) {
-        // Aqui irá a lógica real, ex: return activityLogRepository.findByWorkspaceId(workspaceId);
-        return new ArrayList<>(); // Retornando lista vazia apenas para compilar por enquanto
+        List<ActivityLog> logs = activityLogRepository.findByWorkspaceId(workspaceId);
+        // Ordena para que os mais recentes apareçam no topo
+        logs.sort(Comparator.comparing(ActivityLog::getDataHora).reversed());
+        return logs;
     }
 
     // Retorna os últimos N logs de um workspace específico
     public List<ActivityLog> buscarUltimosLogsPorWorkspace(Long workspaceId, int limit) {
-        // Aqui irá a lógica real com paginação, ex: return activityLogRepository.findByWorkspaceIdOrderByDataHoraDesc(workspaceId, PageRequest.of(0, limit));
-        return new ArrayList<>(); // Retornando lista vazia apenas para compilar por enquanto
+        return buscarLogsPorWorkspace(workspaceId).stream()
+                .limit(limit)
+                .collect(Collectors.toList());
     }
 }

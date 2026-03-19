@@ -19,7 +19,7 @@ public interface ActivityLogRepository extends JpaRepository<ActivityLog, Long> 
            "WHERE al.workspace.id = :workspaceId " +
            "ORDER BY al.dataHora DESC")
     List<ActivityLog> findByWorkspaceIdOrderByDataHoraDesc(@Param("workspaceId") Long workspaceId);
-
+    List<ActivityLog> findByWorkspaceId(Long workspaceId);
     List<ActivityLog> findTop10ByWorkspaceIdOrderByDataHoraDesc(Long workspaceId);
 
     @Modifying
