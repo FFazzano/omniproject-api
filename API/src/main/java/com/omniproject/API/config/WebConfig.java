@@ -1,4 +1,4 @@
-package com.omniproject.API.config;
+package com.omniproject.api.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

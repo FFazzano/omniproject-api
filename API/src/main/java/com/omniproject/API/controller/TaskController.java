@@ -1,15 +1,15 @@
-package com.omniproject.API.controller;
+package com.omniproject.api.controller;
 
-import com.omniproject.API.dto.TaskRequestDTO;
-import com.omniproject.API.dto.TaskResponseDTO;
-import com.omniproject.API.model.Task;
-import com.omniproject.API.model.User;
-import com.omniproject.API.model.Workspace;
-import com.omniproject.API.repository.TaskRepository;
-import com.omniproject.API.repository.WorkspaceRepository;
-import com.omniproject.API.repository.AttachmentRepository;
-import com.omniproject.API.repository.ActivityLogRepository;
-import com.omniproject.API.service.ActivityLogService;
+import com.omniproject.api.dto.TaskRequestDTO;
+import com.omniproject.api.dto.TaskResponseDTO;
+import com.omniproject.api.model.Task;
+import com.omniproject.api.model.User;
+import com.omniproject.api.model.Workspace;
+import com.omniproject.api.repository.TaskRepository;
+import com.omniproject.api.repository.WorkspaceRepository;
+import com.omniproject.api.repository.AttachmentRepository;
+import com.omniproject.api.repository.ActivityLogRepository;
+import com.omniproject.api.service.ActivityLogService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

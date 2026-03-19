@@ -1,4 +1,4 @@
-package com.omniproject.API.exception;
+package com.omniproject.api.exception;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.HttpStatus;

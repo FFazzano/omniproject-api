@@ -1,4 +1,4 @@
-package com.omniproject.API.config;
+package com.omniproject.api.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

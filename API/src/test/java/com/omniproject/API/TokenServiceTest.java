@@ -1,7 +1,8 @@
-package com.omniproject.API;
+package com.omniproject.api;
 
-import com.omniproject.API.config.TokenService;
-import com.omniproject.API.model.User;
+import com.omniproject.api.model.User;
+import com.omniproject.api.service.TokenService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

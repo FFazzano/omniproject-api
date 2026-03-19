@@ -1,10 +1,10 @@
-package com.omniproject.API.controller;
+package com.omniproject.api.controller;
 
-import com.omniproject.API.dto.AttachmentResponseDTO;
-import com.omniproject.API.model.Attachment;
-import com.omniproject.API.model.Task;
-import com.omniproject.API.repository.AttachmentRepository;
-import com.omniproject.API.repository.TaskRepository;
+import com.omniproject.api.dto.AttachmentResponseDTO;
+import com.omniproject.api.model.Attachment;
+import com.omniproject.api.model.Task;
+import com.omniproject.api.repository.AttachmentRepository;
+import com.omniproject.api.repository.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

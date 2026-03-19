@@ -1,10 +1,10 @@
-package com.omniproject.API.controller;
+package com.omniproject.api.controller;
 
-import com.omniproject.API.model.ActivityLog;
-import com.omniproject.API.model.User;
-import com.omniproject.API.model.Workspace;
-import com.omniproject.API.repository.WorkspaceRepository;
-import com.omniproject.API.service.ActivityLogService;
+import com.omniproject.api.model.ActivityLog;
+import com.omniproject.api.model.User;
+import com.omniproject.api.model.Workspace;
+import com.omniproject.api.repository.WorkspaceRepository;
+import com.omniproject.api.service.ActivityLogService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;

@@ -1,6 +1,6 @@
-package com.omniproject.API.repository;
+package com.omniproject.api.repository;
 
-import com.omniproject.API.model.Comment;
+import com.omniproject.api.model.Comment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,6 +1,8 @@
-package com.omniproject.API.config;
+package com.omniproject.api.config;
 
-import com.omniproject.API.repository.UserRepository;
+import com.omniproject.api.repository.UserRepository;
+import com.omniproject.api.service.TokenService;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,6 +1,6 @@
-package com.omniproject.API.config;
+package com.omniproject.api.service;
 
-import com.omniproject.API.repository.UserRepository;
+import com.omniproject.api.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

@@ -1,6 +1,6 @@
-package com.omniproject.API.repository;
+package com.omniproject.api.repository;
 
-import com.omniproject.API.model.ActivityLog;
+import com.omniproject.api.model.ActivityLog;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.Modifying;

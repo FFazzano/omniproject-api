@@ -1,9 +1,10 @@
-package com.omniproject.API.controller;
+package com.omniproject.api.controller;
 
-import com.omniproject.API.config.TokenService;
-import com.omniproject.API.model.User;
-import com.omniproject.API.model.UserRole;
-import com.omniproject.API.repository.UserRepository;
+import com.omniproject.api.model.User;
+import com.omniproject.api.model.UserRole;
+import com.omniproject.api.repository.UserRepository;
+import com.omniproject.api.service.TokenService;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

@@ -1,4 +1,4 @@
-package com.omniproject.API.controller;
+package com.omniproject.api.dto;
 
 import jakarta.validation.constraints.NotBlank;
 

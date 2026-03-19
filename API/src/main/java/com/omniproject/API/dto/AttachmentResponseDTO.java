@@ -1,7 +1,7 @@
-package com.omniproject.API.dto;
+package com.omniproject.api.dto;
 
 // DTO de Resposta para os Anexos
-import com.omniproject.API.model.Attachment;
+import com.omniproject.api.model.Attachment;
 
 public record AttachmentResponseDTO(
         Long id,

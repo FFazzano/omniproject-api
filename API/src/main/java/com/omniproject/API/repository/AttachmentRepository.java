@@ -1,6 +1,6 @@
-package com.omniproject.API.repository;
+package com.omniproject.api.repository;
 
-import com.omniproject.API.model.Attachment;
+import com.omniproject.api.model.Attachment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.transaction.annotation.Transactional;

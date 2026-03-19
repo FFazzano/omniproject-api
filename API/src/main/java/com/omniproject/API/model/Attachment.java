@@ -1,4 +1,4 @@
-package com.omniproject.API.model;
+package com.omniproject.api.model;
 
 import jakarta.persistence.*;
 

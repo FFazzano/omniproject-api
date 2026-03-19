@@ -1,8 +1,8 @@
-package com.omniproject.API.service;
+package com.omniproject.api.service;
 
-import com.omniproject.API.model.User;
-import com.omniproject.API.model.Workspace;
-import com.omniproject.API.model.ActivityLog;
+import com.omniproject.api.model.User;
+import com.omniproject.api.model.Workspace;
+import com.omniproject.api.model.ActivityLog;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

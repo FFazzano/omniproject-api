@@ -1,7 +1,7 @@
-package com.omniproject.API.dto;
+package com.omniproject.api.dto;
 
 // DTO de Resposta para envio de Tarefas ao Front-end
-import com.omniproject.API.model.Task;
+import com.omniproject.api.model.Task;
 import java.time.LocalDateTime;
 
 public record TaskResponseDTO(

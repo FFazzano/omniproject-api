@@ -1,10 +1,10 @@
-package com.omniproject.API;
+package com.omniproject.api;
 
-import com.omniproject.API.model.User;
-import com.omniproject.API.model.Workspace;
-import com.omniproject.API.repository.WorkspaceRepository;
-import com.omniproject.API.service.ActivityLogService;
-import com.omniproject.API.service.WorkspaceService;
+import com.omniproject.api.model.User;
+import com.omniproject.api.model.Workspace;
+import com.omniproject.api.repository.WorkspaceRepository;
+import com.omniproject.api.service.ActivityLogService;
+import com.omniproject.api.service.WorkspaceService;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

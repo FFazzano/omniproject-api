@@ -1,7 +1,7 @@
-package com.omniproject.API.dto;
+package com.omniproject.api.dto;
 
 // DTO de Resposta para Comentários
-import com.omniproject.API.model.Comment;
+import com.omniproject.api.model.Comment;
 import java.time.LocalDateTime;
 
 public record CommentResponseDTO(

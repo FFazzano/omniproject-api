@@ -1,4 +1,4 @@
-package com.omniproject.API.config;
+package com.omniproject.api.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;

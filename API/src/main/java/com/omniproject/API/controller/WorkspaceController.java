@@ -1,10 +1,10 @@
-package com.omniproject.API.controller;
+package com.omniproject.api.controller;
 
-import com.omniproject.API.model.User;
-import com.omniproject.API.model.Workspace;
-import com.omniproject.API.repository.UserRepository;
-import com.omniproject.API.repository.WorkspaceRepository;
-import com.omniproject.API.service.ActivityLogService;
+import com.omniproject.api.model.User;
+import com.omniproject.api.model.Workspace;
+import com.omniproject.api.repository.UserRepository;
+import com.omniproject.api.repository.WorkspaceRepository;
+import com.omniproject.api.service.ActivityLogService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

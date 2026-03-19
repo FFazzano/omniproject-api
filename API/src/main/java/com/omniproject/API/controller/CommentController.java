@@ -1,12 +1,12 @@
-package com.omniproject.API.controller;
+package com.omniproject.api.controller;
 
-import com.omniproject.API.dto.CommentRequestDTO;
-import com.omniproject.API.dto.CommentResponseDTO;
-import com.omniproject.API.model.Comment;
-import com.omniproject.API.model.Task;
-import com.omniproject.API.model.User;
-import com.omniproject.API.repository.CommentRepository;
-import com.omniproject.API.repository.TaskRepository;
+import com.omniproject.api.dto.CommentRequestDTO;
+import com.omniproject.api.dto.CommentResponseDTO;
+import com.omniproject.api.model.Comment;
+import com.omniproject.api.model.Task;
+import com.omniproject.api.model.User;
+import com.omniproject.api.repository.CommentRepository;
+import com.omniproject.api.repository.TaskRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

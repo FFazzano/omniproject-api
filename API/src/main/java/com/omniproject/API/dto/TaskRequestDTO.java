@@ -1,4 +1,4 @@
-package com.omniproject.API.dto;
+package com.omniproject.api.dto;
 
 // DTO de Requisição para criar/editar Tarefas
 import jakarta.validation.constraints.NotBlank;

@@ -1,4 +1,4 @@
-package com.omniproject.API.dto;
+package com.omniproject.api.dto;
 
 // DTO de Requisição para novos Comentários
 import jakarta.validation.constraints.NotBlank;

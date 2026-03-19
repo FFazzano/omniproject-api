@@ -1,11 +1,11 @@
-package com.omniproject.API.repository;
+package com.omniproject.api.repository;
 
-import com.omniproject.API.model.Workspace;
+import com.omniproject.api.model.Workspace;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import com.omniproject.API.model.User;
+import com.omniproject.api.model.User;
 import java.util.List;
 
 @Repository
