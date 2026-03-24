@@ -17,12 +17,8 @@ O foco principal do desenvolvimento foi construir um **Back-end robusto e seguro
 * **Modelagem de Dados:** Relacionamentos complexos (`@OneToMany`, `@ManyToMany`) estruturados no Hibernate/JPA, resolvendo problemas clássicos de recursão infinita no JSON com `@JsonManagedReference` e `@JsonBackReference`.
 * **Banco de Dados na Nuvem:** Integração com PostgreSQL hospedado no Neon, otimizado para ambientes de produção e desenvolvimento.
 * **Ambientes Isolados (Sandbox):** Configuração profissional de variáveis de ambiente (`.env`) para separar o ambiente de desenvolvimento local (localhost) do ambiente de produção (Render).
-
-##    Seção de "Destaques Técnicos" (Complemento):
-
-**Integração com IA (Gemini API):** Implementação do TrixService para orquestração de prompts inteligentes e processamento de dados.
-
-**Tratamento de Exceções Global:** Implementação de um GlobalExceptionHandler para garantir respostas de erro padronizadas e seguras na API.
+* **Integração com IA (Gemini API):** Implementação do TrixService para orquestração de prompts inteligentes e processamento de dados.
+* **Tratamento de Exceções Global:** Implementação de um GlobalExceptionHandler para garantir respostas de erro padronizadas e seguras na API.
 
 ## 🛠️ Tecnologias Utilizadas
 
